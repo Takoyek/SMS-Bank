@@ -13,6 +13,8 @@ withdrawal_pattern = r"برداشت: ([\d,]+) ریال"
 
 total_deposit = 0  # مقدار اولیه جمع کل واریزها
 total_withdrawal = 0  # مقدار اولیه جمع کل برداشت‌ها
+deposit_count = 0  # تعداد رکوردهای واریزها
+withdrawal_count = 0  # تعداد رکوردهای برداشت‌ها
 
 print("Deposits:")
 # پردازش هر خط و پیدا کردن مقادیر واریز و برداشت
@@ -23,6 +25,7 @@ for line in content:
         # تبدیل مقدار به عدد صحیح و حذف کاماها
         amount_int = int(amount.replace(',', ''))
         total_deposit += amount_int
+        deposit_count += 1
         print(amount)
 
 print("\nWithdrawals:")
@@ -33,8 +36,11 @@ for line in content:
         # تبدیل مقدار به عدد صحیح و حذف کاماها
         amount_int = int(amount.replace(',', ''))
         total_withdrawal += amount_int
+        withdrawal_count += 1
         print(amount)
 
-# نمایش جمع کل
+# نمایش جمع کل و تعداد رکوردها
 print("\nTotal Deposits: {:,} Rials".format(total_deposit))
+print("Total Number of Deposit Records: {}".format(deposit_count))
 print("Total Withdrawals: {:,} Rials".format(total_withdrawal))
+print("Total Number of Withdrawal Records: {}".format(withdrawal_count))
