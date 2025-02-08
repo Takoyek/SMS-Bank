@@ -1,63 +1,60 @@
 import re
+from datetime import datetime, timedelta
+import jdatetime
 
 # آدرس فایل
 file_path = "D:\\AVIDA\\CODE\\Bank\\SMS.txt"
 
 # خواندن محتوای فایل
 with open(file_path, 'r', encoding='utf-8') as file:
-    content = file.readlines()
+    content = file.read()  # خواندن تمام محتوا به عنوان یک رشته
 
-# الگوهای جستجو برای پیدا کردن اعداد بعد از کلمات "واریز" و "برداشت"
-deposit_pattern = r"واریز: ([\d,]+) ریال"
-withdrawal_pattern = r"برداشت: ([\d,]+) ریال"
+# الگوی جستجو برای پیدا کردن تراکنش‌ها
+transaction_pattern = r"\*بانک تجارت\*[\s\S]*?(\d{4}/\d{2}/\d{2})[\s\S]*?(واریز: ([\d,]+) ریال|برداشت: ([\d,]+) ریال)"
 
-total_deposit = 0  # مقدار اولیه جمع کل واریزها
-total_withdrawal = 0  # مقدار اولیه جمع کل برداشت‌ها
-deposit_count = 0  # تعداد رکوردهای واریزها
-withdrawal_count = 0  # تعداد رکوردهای برداشت‌ها
+# تبدیل تاریخ‌های شمسی به میلادی
+def jalali_to_gregorian(jalali_date):
+    jdate = jdatetime.datetime.strptime(jalali_date, "%Y/%m/%d")
+    gdate = jdate.togregorian()
+    return gdate
 
-high_value_deposits = []  # لیست واریزهای با مقدار بالا
-high_value_withdrawals = []  # لیست برداشت‌های با مقدار بالا
+transactions = []
 
-print("Deposits:")
-# پردازش هر خط و پیدا کردن مقادیر واریز و برداشت
-for line in content:
-    deposit_match = re.search(deposit_pattern, line)
-    if deposit_match:
-        amount = deposit_match.group(1)
-        # تبدیل مقدار به عدد صحیح و حذف کاماها
-        amount_int = int(amount.replace(',', ''))
-        total_deposit += amount_int
-        deposit_count += 1
-        print(amount)
-        if amount_int > 20000000:
-            high_value_deposits.append(amount)
+# یافتن تمام تراکنش‌ها
+matches = re.findall(transaction_pattern, content)
 
-print("\nWithdrawals:")
-for line in content:
-    withdrawal_match = re.search(withdrawal_pattern, line)
-    if withdrawal_match:
-        amount = withdrawal_match.group(1)
-        # تبدیل مقدار به عدد صحیح و حذف کاماها
-        amount_int = int(amount.replace(',', ''))
-        total_withdrawal += amount_int
-        withdrawal_count += 1
-        print(amount)
-        if amount_int > 20000000:
-            high_value_withdrawals.append(amount)
+for match in matches:
+    date_str, _, deposit_str, withdrawal_str = match
+    date = jalali_to_gregorian(date_str)
+    
+    if deposit_str:
+        amount = int(deposit_str.replace(',', ''))
+        transactions.append((date, "deposit", amount))
+    
+    if withdrawal_str:
+        amount = int(withdrawal_str.replace(',', ''))
+        transactions.append((date, "withdrawal", amount))
 
-# نمایش جمع کل و تعداد رکوردها
-print("\nTotal Deposits: {:,} Rials".format(total_deposit))
-print("Total Number of Deposit Records: {}".format(deposit_count))
-print("Total Withdrawals: {:,} Rials".format(total_withdrawal))
-print("Total Number of Withdrawal Records: {}".format(withdrawal_count))
+# بررسی تعداد تراکنش‌ها
+if not transactions:
+    print("هیچ تراکنشی پیدا نشد. لطفاً مطمئن شوید که فرمت فایل ورودی صحیح است.")
+    exit()
 
-# نمایش واریزهای با مقدار بالا
-print("\nHigh Value Deposits (Greater than 20,000,000 Rials):")
-for high_value_deposit in high_value_deposits:
-    print(high_value_deposit)
+# محاسبه و نمایش جمع کل و تعداد رکوردها در هر ۳۰ روز
+start_date = min(t[0] for t in transactions)
+end_date = max(t[0] for t in transactions)
+current_date = start_date
 
-# نمایش برداشت‌های با مقدار بالا
-print("\nHigh Value Withdrawals (Greater than 20,000,000 Rials):")
-for high_value_withdrawal in high_value_withdrawals:
-    print(high_value_withdrawal)
+while current_date <= end_date:
+    next_date = current_date + timedelta(days=30)
+    deposit_sum = sum(t[2] for t in transactions if t[0] >= current_date and t[0] < next_date and t[1] == "deposit")
+    withdrawal_sum = sum(t[2] for t in transactions if t[0] >= current_date and t[0] < next_date and t[1] == "withdrawal")
+    deposit_count = sum(1 for t in transactions if t[0] >= current_date and t[0] < next_date and t[1] == "deposit")
+    withdrawal_count = sum(1 for t in transactions if t[0] >= current_date and t[0] < next_date and t[1] == "withdrawal")
+    
+    # نمایش تاریخ‌ها با فرمت "Month Day, Year"
+    print(f"From {current_date.strftime('%B %d, %Y')} to {next_date.strftime('%B %d, %Y')}:")
+    print(f"  Total Deposits: {deposit_sum:,} Rials (Count: {deposit_count})")
+    print(f"  Total Withdrawals: {withdrawal_sum:,} Rials (Count: {withdrawal_count})\n")
+    
+    current_date = next_date
