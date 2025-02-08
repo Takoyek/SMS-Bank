@@ -16,6 +16,9 @@ total_withdrawal = 0  # مقدار اولیه جمع کل برداشت‌ها
 deposit_count = 0  # تعداد رکوردهای واریزها
 withdrawal_count = 0  # تعداد رکوردهای برداشت‌ها
 
+high_value_deposits = []  # لیست واریزهای با مقدار بالا
+high_value_withdrawals = []  # لیست برداشت‌های با مقدار بالا
+
 print("Deposits:")
 # پردازش هر خط و پیدا کردن مقادیر واریز و برداشت
 for line in content:
@@ -27,6 +30,8 @@ for line in content:
         total_deposit += amount_int
         deposit_count += 1
         print(amount)
+        if amount_int > 20000000:
+            high_value_deposits.append(amount)
 
 print("\nWithdrawals:")
 for line in content:
@@ -38,9 +43,21 @@ for line in content:
         total_withdrawal += amount_int
         withdrawal_count += 1
         print(amount)
+        if amount_int > 20000000:
+            high_value_withdrawals.append(amount)
 
 # نمایش جمع کل و تعداد رکوردها
 print("\nTotal Deposits: {:,} Rials".format(total_deposit))
 print("Total Number of Deposit Records: {}".format(deposit_count))
 print("Total Withdrawals: {:,} Rials".format(total_withdrawal))
 print("Total Number of Withdrawal Records: {}".format(withdrawal_count))
+
+# نمایش واریزهای با مقدار بالا
+print("\nHigh Value Deposits (Greater than 20,000,000 Rials):")
+for high_value_deposit in high_value_deposits:
+    print(high_value_deposit)
+
+# نمایش برداشت‌های با مقدار بالا
+print("\nHigh Value Withdrawals (Greater than 20,000,000 Rials):")
+for high_value_withdrawal in high_value_withdrawals:
+    print(high_value_withdrawal)
