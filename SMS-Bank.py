@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, timedelta
+import jdatetime  # کتابخانه برای کار با تاریخ شمسی
 
 # آدرس فایل
 file_path = "D:\\AVIDA\\CODE\\Bank\\SMS.txt"
@@ -9,13 +9,11 @@ deposit_pattern = r"واریز: ([\d,]+) ریال"
 withdrawal_pattern = r"برداشت: ([\d,]+) ریال"
 date_pattern = r"(\d{4}/\d{2}/\d{2})"  # الگو برای تاریخ
 
-# تابع تبدیل تاریخ شمسی به تعداد روزها از یک مبدا
-def convert_jalali_to_days(date_str):
-    # تبدیل تاریخ شمسی به میلادی (این تابع نیاز به کتابخانه‌ی jalali دارد)
-    # برای سادگی، فرض می‌کنیم تاریخ‌ها به ترتیب هستند و نیازی به تبدیل دقیق نداریم.
-    # در اینجا فقط سال، ماه و روز را استخراج می‌کنیم.
+# تابع تبدیل تاریخ شمسی به رشته‌ی قابل‌خواندن
+def format_jalali_date(date_str):
     year, month, day = map(int, date_str.split('/'))
-    return year * 365 + month * 30 + day  # تقریب ساده برای محاسبه تعداد روزها
+    jalali_date = jdatetime.date(year, month, day)
+    return jalali_date.strftime("%Y/%m/%d")  # فرمت تاریخ شمسی
 
 # خواندن محتوای فایل
 try:
@@ -50,21 +48,22 @@ try:
     else:
         # پیدا کردن اولین تاریخ
         first_date = transactions[0][2]
-        first_days = convert_jalali_to_days(first_date)
+        first_jalali = jdatetime.date(*map(int, first_date.split('/')))
 
         # ذخیره جمع واریزها و برداشت‌ها در هر بازه
         period_deposits = 0
         period_withdrawals = 0
-        current_period_start = first_days
+        current_period_start = first_jalali
 
         print("Transactions per 30-day periods:")
         for transaction in transactions:
             type_, amount, date = transaction
-            transaction_days = convert_jalali_to_days(date)
+            jalali_date = jdatetime.date(*map(int, date.split('/')))
 
             # اگر تراکنش در بازه‌ی ۳۰ روزه فعلی نباشد، نتایج را نمایش داده و بازه را به‌روزرسانی کنید
-            if transaction_days >= current_period_start + 30:
-                print(f"Period from day {current_period_start} to {current_period_start + 29}:")
+            if (jalali_date - current_period_start).days >= 30:
+                period_end = current_period_start + jdatetime.timedelta(days=29)
+                print(f"Period from {current_period_start.strftime('%Y/%m/%d')} to {period_end.strftime('%Y/%m/%d')}:")
                 print(f"  Total Deposits: {period_deposits:,}")
                 print(f"  Total Withdrawals: {period_withdrawals:,}")
                 print("-" * 40)
@@ -72,7 +71,7 @@ try:
                 # بازنشانی جمع‌ها برای بازه‌ی جدید
                 period_deposits = 0
                 period_withdrawals = 0
-                current_period_start += 30
+                current_period_start += jdatetime.timedelta(days=30)
 
             # اضافه کردن مقدار به جمع بازه‌ی فعلی
             if type_ == "deposit":
@@ -81,7 +80,8 @@ try:
                 period_withdrawals += amount
 
         # نمایش نتایج برای آخرین بازه
-        print(f"Period from day {current_period_start} to {current_period_start + 29}:")
+        period_end = current_period_start + jdatetime.timedelta(days=29)
+        print(f"Period from {current_period_start.strftime('%Y/%m/%d')} to {period_end.strftime('%Y/%m/%d')}:")
         print(f"  Total Deposits: {period_deposits:,}")
         print(f"  Total Withdrawals: {period_withdrawals:,}")
 
