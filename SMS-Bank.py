@@ -1,7 +1,8 @@
 import re
 import jdatetime
 
-file_path = "D:\\AVIDA\\CODE\\Bank\\Input.txt"
+input_path = "D:\\AVIDA\\CODE\\Bank\\SMS-Bank\\Input.txt"
+output_path = "D:\\AVIDA\\CODE\\Bank\\SMS-Bank\\Output.txt"
 
 deposit_pattern = r"واریز:\s*([\d,]+)\s*ریال"
 withdrawal_pattern = r"برداشت:\s*([\d,]+)\s*ریال"
@@ -16,7 +17,7 @@ def parse_jalali_date(date_str):
         return None
 
 try:
-    with open(file_path, 'r', encoding='utf-8') as file:
+    with open(input_path, 'r', encoding='utf-8') as file:
         content = file.readlines()
 
     transactions = []
