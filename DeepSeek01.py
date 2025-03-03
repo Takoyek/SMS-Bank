@@ -83,12 +83,12 @@ try:
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
             <style>
                 @font-face {
-                    font-family: 'IRANSans';
-                    src: url('https://cdn.jsdelivr.net/gh/rastikerdar/iran-sans-font@5/dist/woff2/IRANSansWeb.woff2') format('woff2');
+                    font-family: 'B Yekan';
+                    src: url('https://cdn.jsdelivr.net/gh/rastikerdar/iran-sans-font@5/dist/woff2/B YekanWeb.woff2') format('woff2');
                 }
                 
                 body {
-                    font-family: 'IRANSans', Tahoma, sans-serif;
+                    font-family: 'B Yekan', Tahoma, sans-serif;
                     background: #f8f9fa;
                     margin: 0;
                     padding: 40px 0;
@@ -116,7 +116,7 @@ try:
                 }
                 
                 .report-title {
-                    font-size: 28px;
+                    font-size: 38px;
                     margin: 0;
                     letter-spacing: 2px;
                 }
@@ -131,14 +131,14 @@ try:
                     background: linear-gradient(135deg, #f8f9fa, #e9ecef);
                     color: #2c3e50;
                     padding: 18px;
-                    font-size: 15px;
+                    font-size: 22px;
                     border-bottom: 3px solid #dee2e6;
                 }
                 
                 td {
                     padding: 15px;
                     border-bottom: 1px solid #dee2e6;
-                    font-size: 14px;
+                    font-size: 20px;
                 }
                 
                 tr:hover {
@@ -172,12 +172,12 @@ try:
                 
                 .total-label {
                     color: #6c757d;
-                    font-size: 14px;
+                    font-size: 26px;
                     margin-bottom: 8px;
                 }
                 
                 .total-value {
-                    font-size: 22px;
+                    font-size: 24px;
                     font-weight: 700;
                 }
                 
@@ -186,18 +186,18 @@ try:
                     color: white;
                     padding: 20px;
                     text-align: center;
-                    font-size: 12px;
+                    font-size: 18px;
                 }
                 
                 .period-range {
                     color: #6c757d;
-                    font-size: 13px;
+                    font-size: 18px;
                 }
                 
                 .badge {
                     padding: 6px 12px;
                     border-radius: 20px;
-                    font-size: 12px;
+                    font-size: 18px;
                 }
                 
                 .badge-success {
@@ -224,7 +224,7 @@ try:
             <div class="container">
                 <div class="header">
                     <h1 class="report-title">گزارش تراکنش‌های مالی</h1>
-                    <div class="report-subtitle">بانک تجارت آویدا</div>
+                    <div class="report-subtitle">بانک تجارت</div>
                 </div>
                 
                 <div style="padding: 30px">
@@ -279,7 +279,7 @@ try:
                 
                 <div class="footer">
                     <div>تاریخ تولید گزارش: {{ generated_date }} - ساعت {{ generated_time }}</div>
-                    <div style="margin-top: 8px">Avida Bank - کلیه حقوق محفوظ است © ۱۴۰۳</div>
+                    <div style="margin-top: 8px">AVIDA Group - کلیه حقوق محفوظ است © ۱۴۰۳</div>
                 </div>
             </div>
         </body>
