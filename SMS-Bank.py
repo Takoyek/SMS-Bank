@@ -1,7 +1,7 @@
 import re
 import jdatetime
 
-file_path = "D:\\AVIDA\\CODE\\Bank\\SMS.txt"
+file_path = "D:\\AVIDA\\CODE\\Bank\\Input.txt"
 
 deposit_pattern = r"واریز:\s*([\d,]+)\s*ریال"
 withdrawal_pattern = r"برداشت:\s*([\d,]+)\s*ریال"
