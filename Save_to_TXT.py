@@ -60,41 +60,32 @@ try:
         # باز کردن فایل خروجی برای نوشتن
         with open(output_path, 'w', encoding='utf-8') as output_file:
             output_file.write("\nگزارش دوره‌های 30 روزه:\n")
-            for trans in transactions:
-                trans_type, amount, date = trans
+            while current_period_start <= transactions[-1][2]:
+                period_end = current_period_start + jdatetime.timedelta(days=29)
+                period_transactions = [t for t in transactions if current_period_start <= t[2] <= period_end]
 
-                # محاسبه تفاوت روزها
-                if (date - current_period_start).days >= 30:
-                    # نمایش تاریخ‌ها با فرمت فارسی
-                    start = current_period_start.strftime("%Y/%m/%d")
-                    end_date = current_period_start + jdatetime.timedelta(
-                        days=29)
-                    end = end_date.strftime("%Y/%m/%d")
-                    output_file.write(f"\nپریود: {start} تا {end}\n")
-                    output_file.write(f"جمع واریزها: {period_deposits:,} ریال\n")
-                    output_file.write(f"جمع برداشت‌ها: {period_withdrawals:,} ریال\n")
+                if period_transactions:
+                    period_deposits = sum(t[1] for t in period_transactions if t[0] == 'deposit')
+                    period_withdrawals = sum(t[1] for t in period_transactions if t[0] == 'withdrawal')
 
-                    # شروع دوره جدید
-                    current_period_start += jdatetime.timedelta(days=30)
-                    period_deposits = 0
-                    period_withdrawals = 0
+                    # رسم کادر با کاراکترهای Unicode
+                    start_date_str = current_period_start.strftime("%Y/%m/%d")
+                    end_date_str = period_end.strftime("%Y/%m/%d")
+                    header = f"╭─ پریود: {start_date_str} تا {end_date_str} ─╮"
+                    deposits_str = f"│ • جمع واریزها: {period_deposits:,} ریال"
+                    withdrawals_str = f"│ • جمع برداشت‌ها: {period_withdrawals:,} ریال"
+                    footer = "╰────────────────────────────╯"
 
-                # محاسبه جمع دوره
-                if trans_type == 'deposit':
-                    period_deposits += amount
-                else:
-                    period_withdrawals += amount
+                    output_file.write(f"\n{header}\n")
+                    output_file.write(f"{deposits_str}\n")
+                    output_file.write(f"{withdrawals_str}\n")
+                    output_file.write(f"{footer}\n")
 
-            # نمایش آخرین دوره
-            start = current_period_start.strftime("%Y/%m/%d")
-            end_date = current_period_start + jdatetime.timedelta(days=29)
-            end = end_date.strftime("%Y/%m/%d")
-            output_file.write(f"\nپریود: {start} تا {end}\n")
-            output_file.write(f"جمع واریزها: {period_deposits:,} ریال\n")
-            output_file.write(f"جمع برداشت‌ها: {period_withdrawals:,} ریال\n")
+                # حرکت به دوره بعدی
+                current_period_start += jdatetime.timedelta(days=30)
 
             # نمایش جمع کل
-            output_file.write("\nنتیجه نهایی:\n")
+            output_file.write("\n════════════════ نتیجه نهایی ════════════════\n")
             output_file.write(f"جمع کل واریزی‌ها: {grand_total_deposit:,} ریال\n")
             output_file.write(f"جمع کل برداشت‌ها: {grand_total_withdrawal:,} ریال\n")
             balance = grand_total_deposit - grand_total_withdrawal
