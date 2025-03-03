@@ -1,4 +1,80 @@
+import re
+import jdatetime
+from jinja2 import Template
+from weasyprint import HTML
+from datetime import datetime
 
+input_path = "D:\\AVIDA\\CODE\\Bank\\SMS-Bank\\Input.txt"
+html_output_path = "D:\\AVIDA\\CODE\\Bank\\SMS-Bank\\Output.html"
+pdf_output_path = "D:\\AVIDA\\CODE\\Bank\\SMS-Bank\\Output.pdf"
+
+deposit_pattern = r"واریز:\s*([\d,]+)\s*ریال"
+withdrawal_pattern = r"برداشت:\s*([\d,]+)\s*ریال"
+date_pattern = r"(\d{4}/\d{2}/\d{2})"
+
+def parse_jalali_date(date_str):
+    try:
+        year, month, day = map(int, date_str.split('/'))
+        return jdatetime.date(year, month, day)
+    except Exception as e:
+        print(f"خطا در پردازش تاریخ {date_str}: {str(e)}")
+        return None
+
+try:
+    with open(input_path, 'r', encoding='utf-8') as file:
+        content = file.readlines()
+
+    transactions = []
+    current_date = None
+    grand_total_deposit = 0
+    grand_total_withdrawal = 0
+
+    for line in content:
+        line = line.strip()
+        
+        date_match = re.search(date_pattern, line)
+        if date_match:
+            current_date = parse_jalali_date(date_match.group(1))
+            continue
+
+        if current_date:
+            if re.search(deposit_pattern, line):
+                amount = int(re.search(deposit_pattern, line).group(1).replace(',', ''))
+                transactions.append(('deposit', amount, current_date))
+                grand_total_deposit += amount
+            
+            elif re.search(withdrawal_pattern, line):
+                amount = int(re.search(withdrawal_pattern, line).group(1).replace(',', ''))
+                transactions.append(('withdrawal', amount, current_date))
+                grand_total_withdrawal += amount
+
+    if transactions:
+        transactions.sort(key=lambda x: x[2])
+
+        periods = []
+        current_period_start = transactions[0][2]
+        while current_period_start <= transactions[-1][2]:
+            period_end = current_period_start + jdatetime.timedelta(days=29)
+            period_transactions = [t for t in transactions if current_period_start <= t[2] <= period_end]
+
+            if period_transactions:
+                period_deposits = sum(t[1] for t in period_transactions if t[0] == 'deposit')
+                period_withdrawals = sum(t[1] for t in period_transactions if t[0] == 'withdrawal')
+
+                periods.append({
+                    'start': current_period_start.strftime("%Y/%m/%d"),
+                    'end': period_end.strftime("%Y/%m/%d"),
+                    'deposits': period_deposits,
+                    'withdrawals': period_withdrawals
+                })
+
+            current_period_start += jdatetime.timedelta(days=30)
+
+        total_balance = grand_total_deposit - grand_total_withdrawal
+        generated_date = jdatetime.date.today().strftime("%Y/%m/%d")
+        generated_time = datetime.now().strftime("%H:%M:%S")
+
+        html_template = """
         <!DOCTYPE html>
         <html lang="fa" dir="rtl">
         <head>
@@ -162,121 +238,78 @@
                             </tr>
                         </thead>
                         <tbody>
-                            
+                            {% for period in periods %}
                             <tr>
                                 <td>
-                                    <div class="period-range">1403/04/22 تا 1403/05/20</div>
+                                    <div class="period-range">{{ period.start }} تا {{ period.end }}</div>
                                 </td>
-                                <td class="deposit-amount">532,896,800 ریال</td>
-                                <td class="withdrawal-amount">870,281,841 ریال</td>
+                                <td class="deposit-amount">{{ "{:,}".format(period.deposits) }} ریال</td>
+                                <td class="withdrawal-amount">{{ "{:,}".format(period.withdrawals) }} ریال</td>
                                 <td>
-                                    
+                                    {% if period.deposits > period.withdrawals %}
+                                    <span class="badge badge-success">
+                                        <i class="fas fa-arrow-up"></i> مثبت
+                                    </span>
+                                    {% else %}
                                     <span class="badge badge-danger">
                                         <i class="fas fa-arrow-down"></i> منفی
                                     </span>
-                                    
+                                    {% endif %}
                                 </td>
                             </tr>
-                            
-                            <tr>
-                                <td>
-                                    <div class="period-range">1403/05/21 تا 1403/06/19</div>
-                                </td>
-                                <td class="deposit-amount">477,250,001 ریال</td>
-                                <td class="withdrawal-amount">301,397,587 ریال</td>
-                                <td>
-                                    
-                                    <span class="badge badge-success">
-                                        <i class="fas fa-arrow-up"></i> مثبت
-                                    </span>
-                                    
-                                </td>
-                            </tr>
-                            
-                            <tr>
-                                <td>
-                                    <div class="period-range">1403/06/20 تا 1403/07/18</div>
-                                </td>
-                                <td class="deposit-amount">427,220,008 ریال</td>
-                                <td class="withdrawal-amount">678,192,800 ریال</td>
-                                <td>
-                                    
-                                    <span class="badge badge-danger">
-                                        <i class="fas fa-arrow-down"></i> منفی
-                                    </span>
-                                    
-                                </td>
-                            </tr>
-                            
-                            <tr>
-                                <td>
-                                    <div class="period-range">1403/07/19 تا 1403/08/18</div>
-                                </td>
-                                <td class="deposit-amount">464,720,000 ریال</td>
-                                <td class="withdrawal-amount">451,965,098 ریال</td>
-                                <td>
-                                    
-                                    <span class="badge badge-success">
-                                        <i class="fas fa-arrow-up"></i> مثبت
-                                    </span>
-                                    
-                                </td>
-                            </tr>
-                            
-                            <tr>
-                                <td>
-                                    <div class="period-range">1403/08/19 تا 1403/09/18</div>
-                                </td>
-                                <td class="deposit-amount">652,220,000 ریال</td>
-                                <td class="withdrawal-amount">626,676,263 ریال</td>
-                                <td>
-                                    
-                                    <span class="badge badge-success">
-                                        <i class="fas fa-arrow-up"></i> مثبت
-                                    </span>
-                                    
-                                </td>
-                            </tr>
-                            
-                            <tr>
-                                <td>
-                                    <div class="period-range">1403/11/19 تا 1403/12/18</div>
-                                </td>
-                                <td class="deposit-amount">294,450,000 ریال</td>
-                                <td class="withdrawal-amount">220,283,284 ریال</td>
-                                <td>
-                                    
-                                    <span class="badge badge-success">
-                                        <i class="fas fa-arrow-up"></i> مثبت
-                                    </span>
-                                    
-                                </td>
-                            </tr>
-                            
+                            {% endfor %}
                         </tbody>
                     </table>
                     
                     <div class="total-card">
                         <div class="total-item">
                             <div class="total-label">کل واریزی‌ها</div>
-                            <div class="total-value deposit-amount">2,848,756,809 ریال</div>
+                            <div class="total-value deposit-amount">{{ "{:,}".format(grand_total_deposit) }} ریال</div>
                         </div>
                         <div class="total-item">
                             <div class="total-label">کل برداشت‌ها</div>
-                            <div class="total-value withdrawal-amount">3,148,796,873 ریال</div>
+                            <div class="total-value withdrawal-amount">{{ "{:,}".format(grand_total_withdrawal) }} ریال</div>
                         </div>
                         <div class="total-item">
                             <div class="total-label">مانده نهایی</div>
-                            <div class="total-value" style="color: #2c3e50">-300,040,064 ریال</div>
+                            <div class="total-value" style="color: #2c3e50">{{ "{:,}".format(total_balance) }} ریال</div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="footer">
-                    <div>تاریخ تولید گزارش: 1403/12/13 - ساعت 23:50:42</div>
+                    <div>تاریخ تولید گزارش: {{ generated_date }} - ساعت {{ generated_time }}</div>
                     <div style="margin-top: 8px">Avida Bank - کلیه حقوق محفوظ است © ۱۴۰۳</div>
                 </div>
             </div>
         </body>
         </html>
-        
+        """
+
+        template = Template(html_template)
+        rendered_html = template.render(
+            periods=periods,
+            grand_total_deposit=grand_total_deposit,
+            grand_total_withdrawal=grand_total_withdrawal,
+            total_balance=total_balance,
+            generated_date=generated_date,
+            generated_time=generated_time
+        )
+
+        with open(html_output_path, 'w', encoding='utf-8') as output_file:
+            output_file.write(rendered_html)
+
+        HTML(string=rendered_html).write_pdf(
+            pdf_output_path,
+            stylesheets=["https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"]
+        )
+
+        print("گزارش حرفه‌ای با موفقیت تولید شد!")
+
+    else:
+        print("هیچ تراکنشی یافت نشد!")
+
+except FileNotFoundError:
+    print("خطا: فایل ورودی یافت نشد!")
+except Exception as e:
+    print(f"خطای سیستمی: {str(e)}")
