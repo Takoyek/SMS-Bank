@@ -227,16 +227,16 @@ try:
             <div class="container">
                 <div class="header">
                     <h1 class="report-title">گزارش تراکنش‌های مالی</h1>
-                    <div class="report-subtitle">بانک تجارت</div>
+                    <div class="report-subtitle">پیامک های تراکنش</div>
                 </div>
                 
                 <div style="padding: 30px">
                     <table>
                         <thead>
                             <tr>
-                                <th>دوره زمانی</th>
-                                <th>مجموع واریزها</th>
-                                <th>مجموع برداشت‌ها</th>
+                                <th>دوره زمانی (30 روزه)</th>
+                                <th>واریز</th>
+                                <th>برداشت</th>
                                 <th>وضعیت</th>
                             </tr>
                         </thead>
@@ -266,11 +266,11 @@ try:
                     
                     <div class="total-card">
                         <div class="total-item">
-                            <div class="total-label">کل واریزی‌ها</div>
+                            <div class="total-label">مجموع واریزها</div>
                             <div class="total-value deposit-amount">{{ "{:,}".format(grand_total_deposit) }} ریال</div>
                         </div>
                         <div class="total-item">
-                            <div class="total-label">کل برداشت‌ها</div>
+                            <div class="total-label">مجموع برداشت‌ها</div>
                             <div class="total-value withdrawal-amount">{{ "{:,}".format(grand_total_withdrawal) }} ریال</div>
                         </div>
                         <div class="total-item">
