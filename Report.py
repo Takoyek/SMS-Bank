@@ -1,12 +1,15 @@
 import re
 import jdatetime
 from jinja2 import Template
-from weasyprint import HTML
 from datetime import datetime
+import pdfkit
 
 input_path = "D:\\AVIDA\\CODE\\Bank\\SMS-Bank\\Input.txt"
 html_output_path = "D:\\AVIDA\\CODE\\Bank\\SMS-Bank\\Output.html"
 pdf_output_path = "D:\\AVIDA\\CODE\\Bank\\SMS-Bank\\Output.pdf"
+
+# مسیر فایل اجرایی wkhtmltopdf - این را به مسیر نصب شده در سیستم خودتان تغییر دهید
+wkhtmltopdf_path = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"  # لطفاً این مسیر را تغییر دهید
 
 deposit_pattern = r"واریز:\s*([\d,]+)\s*ریال"
 withdrawal_pattern = r"برداشت:\s*([\d,]+)\s*ریال"
@@ -299,12 +302,56 @@ try:
         with open(html_output_path, 'w', encoding='utf-8') as output_file:
             output_file.write(rendered_html)
 
-        HTML(string=rendered_html).write_pdf(
-            pdf_output_path,
-            stylesheets=["https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"]
-        )
+        # تنظیم pdfkit با مسیر صریح wkhtmltopdf
+        config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
+        
+        options = {
+            'encoding': 'UTF-8',
+            'enable-local-file-access': None,
+            'page-size': 'A4',
+            'margin-top': '0.75in',
+            'margin-right': '0.75in',
+            'margin-bottom': '0.75in',
+            'margin-left': '0.75in',
+            '--enable-javascript': None,
+            '--javascript-delay': '1000',
+            '--no-stop-slow-scripts': None
+        }
+        
+        try:
+            # تبدیل فایل با مسیر صریح wkhtmltopdf
+            pdfkit.from_file(html_output_path, pdf_output_path, options=options, configuration=config)
+            print("گزارش حرفه‌ای با موفقیت تولید شد!")
+        except Exception as e:
+            print(f"خطا در تبدیل HTML به PDF: {str(e)}")
+            
+            # روش جایگزین با استفاده از رشته HTML
+            try:
+                pdfkit.from_string(rendered_html, pdf_output_path, options=options, configuration=config)
+                print("گزارش حرفه‌ای با محتوای رندر شده با موفقیت تولید شد!")
+            except Exception as string_error:
+                print(f"خطا در روش جایگزین: {str(string_error)}")
+                print("\n--- راهنمای عیب‌یابی ---")
+                print("1. مطمئن شوید wkhtmltopdf را از وبسایت رسمی (https://wkhtmltopdf.org/downloads.html) دانلود و نصب کرده‌اید")
+                print("2. مسیر دقیق فایل اجرایی wkhtmltopdf در سیستم خود را بررسی کنید و در متغیر `wkhtmltopdf_path` در ابتدای کد قرار دهید")
+                print("3. امتحان کنید که آیا می‌توانید wkhtmltopdf را از خط فرمان اجرا کنید؟ (در cmd دستور wkhtmltopdf را اجرا کنید)")
+                print("4. اگر همه موارد بالا را بررسی کردید، می‌توانید از راه‌حل جایگزین زیر استفاده کنید:")
+                print("\n--- راه‌حل جایگزین ---")
+                print("استفاده از روش قبلی با WeasyPrint اما با تنظیمات صحیح. کد زیر را اجرا کنید:")
+                
+                # کد کمکی برای نصب و تنظیم WeasyPrint
+                help_code = """
+                # 1. نصب کتابخانه‌های مورد نیاز با دستور زیر:
+                # pip install weasyprint
 
-        print("گزارش حرفه‌ای با موفقیت تولید شد!")
+                # 2. اطمینان از نصب GTK3 روی سیستم (برای Windows):
+                # https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases
+
+                # 3. در کد خود به جای pdfkit از WeasyPrint استفاده کنید:
+                from weasyprint import HTML, CSS
+                HTML(string=rendered_html).write_pdf(pdf_output_path)
+                """
+                print(help_code)
 
     else:
         print("هیچ تراکنشی یافت نشد!")
