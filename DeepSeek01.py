@@ -242,8 +242,8 @@ try:
                             <tr>
                                 <th>دوره زمانی (30 روزه)</th>
                                 <th>واریز</th>
-                                <th>مانده دوره</th>
                                 <th>برداشت</th>
+                                <th>مانده دوره</th>
                                 <th>وضعیت</th>
                             </tr>
                         </thead>
@@ -254,8 +254,8 @@ try:
                                     <div class="period-range">{{ period.start }} تا {{ period.end }}</div>
                                 </td>
                                 <td class="deposit-amount">{{ "{:,}".format(period.deposits) }} ریال</td>
-                                <td class="balance-amount">{{ "{:,}".format(period.balance) }} ریال</td>
                                 <td class="withdrawal-amount">{{ "{:,}".format(period.withdrawals) }} ریال</td>
+                                <td class="balance-amount">{{ "{:,}".format(period.balance) }} ریال</td>
                                 <td>
                                     {% if period.deposits > period.withdrawals %}
                                     <span class="badge badge-success">

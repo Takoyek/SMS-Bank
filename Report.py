@@ -64,11 +64,13 @@ try:
                 period_deposits = sum(t[1] for t in period_transactions if t[0] == 'deposit')
                 period_withdrawals = sum(t[1] for t in period_transactions if t[0] == 'withdrawal')
 
+                # در بخش پردازش دورهها
                 periods.append({
                     'start': current_period_start.strftime("%Y/%m/%d"),
                     'end': period_end.strftime("%Y/%m/%d"),
                     'deposits': period_deposits,
-                    'withdrawals': period_withdrawals
+                    'withdrawals': period_withdrawals,
+                    'balance': period_deposits - period_withdrawals  # محاسبه مانده دوره
                 })
 
             current_period_start += jdatetime.timedelta(days=30)
@@ -221,6 +223,10 @@ try:
                         box-shadow: none;
                     }
                 }
+                .balance-amount {
+                    color: #2c3e50;
+                    font-weight: 600;
+                }
             </style>
         </head>
         <body>
@@ -237,6 +243,7 @@ try:
                                 <th>دوره زمانی (30 روزه)</th>
                                 <th>واریز</th>
                                 <th>برداشت</th>
+                                <th>مانده دوره</th>
                                 <th>وضعیت</th>
                             </tr>
                         </thead>
@@ -248,6 +255,7 @@ try:
                                 </td>
                                 <td class="deposit-amount">{{ "{:,}".format(period.deposits) }} ریال</td>
                                 <td class="withdrawal-amount">{{ "{:,}".format(period.withdrawals) }} ریال</td>
+                                <td class="balance-amount">{{ "{:,}".format(period.balance) }} ریال</td>
                                 <td>
                                     {% if period.deposits > period.withdrawals %}
                                     <span class="badge badge-success">
