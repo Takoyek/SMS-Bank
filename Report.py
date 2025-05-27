@@ -4,9 +4,9 @@ from jinja2 import Template
 from datetime import datetime
 import pdfkit
 
-input_path = "D:\\AVIDA\\CODE\\Bank\\SMS-Bank\\Input.txt"
-html_output_path = "D:\\AVIDA\\CODE\\Bank\\SMS-Bank\\Output.html"
-pdf_output_path = "D:\\AVIDA\\CODE\\Bank\\SMS-Bank\\Output.pdf"
+input_path = "D:\\AVIDA\\CODE\\SMS-Bank\\Input.txt"
+html_output_path = "D:\\AVIDA\\CODE\\SMS-Bank\\Output.html"
+pdf_output_path = "D:\\AVIDA\\CODE\\SMS-Bank\\Output.pdf"
 
 # مسیر فایل اجرایی wkhtmltopdf - این را به مسیر نصب شده در سیستم خودتان تغییر دهید
 wkhtmltopdf_path = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"  # لطفاً این مسیر را تغییر دهید
